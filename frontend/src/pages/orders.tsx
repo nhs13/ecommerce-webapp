@@ -65,7 +65,7 @@ const Orders = () => {
     <div className='admin-container'>
       <Sidebar/>
       <main>
-        <Table columns={columns} data={rows} containerClassname='dashboard-product-box' heading='My Orders' showPagination={true}/>
+        <Table columns={columns} data={rows} containerClassname='dashboard-product-box' heading='My Orders' showPagination={rows.length > 6}/>
         {/* <Link to="/admin/product/new" className='create-product-btn'><FaPlus/></Link> */}
       </main>
     </div>
