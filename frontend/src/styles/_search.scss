@@ -34,12 +34,21 @@
       @include heading;
     }
 
-    > input {
-      @include inputStyle(50%);
-      border-radius: 5px;
+    .flexer{
+      display: flex;
       margin: 1rem;
-      font-size: 1.2rem;
-      display: block;
+      gap: 10px;
+      >svg{
+        margin-top: 10px;
+      }
+      > input {
+        // @include inputStyle(50%);
+        border-radius: 5px;
+        padding: 3px;
+        border: 2px solid rgba(0, 0, 0, 0.452);
+        font-size: 1.2rem;
+        display: block;
+      }
     }
 
     .search-product-list {

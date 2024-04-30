@@ -1,10 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-const Tickets = (adm) => {
+const Tickets = () => {
 
   const firstMsg = false   // temp value, will be decided based on BE info
-  const isAdmin = {adm}
+  const isAdmin = false
   const handleSubmit = () => {
     // send the message to the backend and refetch data to populate the current messages
     // also add the type of ticket along with the message when sending data to BE
