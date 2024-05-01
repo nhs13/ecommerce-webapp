@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../models/user.js";
 import { NewUserRequestBody } from "../types/types.js";
+import { Error } from "mongoose";
+import ErrorHandler from "../utils/utility-class.js";
 
 export const newUser =async (
     req: Request<{},{}, NewUserRequestBody>, // additional type safety
@@ -25,7 +27,7 @@ export const newUser =async (
                 message: `Welcome, ${user.name}`
             })
         } catch(error){
-            return next(new Error(""))
+            return next(new ErrorHandler("Mera custom error", 402))
         }
         
     }

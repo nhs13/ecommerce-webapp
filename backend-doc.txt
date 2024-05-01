@@ -44,7 +44,15 @@ so that we do not have to write the error logic again and again, we can just
 pass params as needed in this middleware.
 
 ---------------------------------------------------------------------------------
--> 
+-> CUSTOM ERROR HANDLER 
+------------------------
+- there is no way to add a custom status on Error in TS 
+in JS you can set properties dynamically on the Error obj
+- so we make a custom class ErrorHandler in utils dir
+- and now instead of defining an error the old way using 
+the "new Error" thing we can do it by "new ErrorHandler"
+- so anytime we encounter an Error, we create an object of
+type ErrorHandler and send it to the errorMiddleware
 
 
 
