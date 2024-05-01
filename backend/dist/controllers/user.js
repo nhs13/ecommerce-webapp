@@ -1,8 +1,9 @@
 import { User } from "../models/user.js";
 export const newUser = async (req, // additional type safety
 res, next) => {
+    return next(new Error("mera error"));
     try {
-        // we are customising "req" above only
+        // we are customizing "req" above only
         // providing type information that helps TypeScript
         // understand the structure of the request body
         const { name, email, photo, gender, _id, dob } = req.body;
