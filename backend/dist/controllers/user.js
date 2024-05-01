@@ -1,7 +1,6 @@
 import { User } from "../models/user.js";
 export const newUser = async (req, // additional type safety
 res, next) => {
-    return next(new Error("mera error"));
     try {
         // we are customizing "req" above only
         // providing type information that helps TypeScript
@@ -21,9 +20,6 @@ res, next) => {
         });
     }
     catch (error) {
-        return res.status(400).json({
-            success: false,
-            message: error
-        });
+        return next(new Error(""));
     }
 };
