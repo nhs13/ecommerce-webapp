@@ -1,0 +1,13 @@
+// save ts and its types as dev dependency
+npm i --save-dev typescript @types/express @types/node
+
+tsc command builds the ts file and creates a new repo 
+'dist' to store the generated js files
+
+make sure to make the scripts out of building, 
+starting & running commands
+
+use "tsc -w" to continuosly watch for changes done in 
+the ts, this will automatically map the changes to the 
+js files in dist and you'd not have to rebuild 
+(make a script out of this too)
