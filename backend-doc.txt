@@ -14,21 +14,32 @@ the ts, this will automatically map the changes to the
 js files in dist and you'd not have to rebuild 
 (make a script out of this too)
 
+
 --------------------------------------------------------------------------------
 -> FOLDER STRUCTURE
 --------------------
 - so we create mws, models, controllers, routes, types and utils 
 as dirs in the src dir
-
 -  mws would contain verify-token mw and the error-handler, models 
 would contain the database tables, routes will obv contain the BE 
 routes, types would contain the "additional" type-safety types we 
 have used at certain places e.g. to structure the request body, 
 utils contain utility functions such as MongoDB connection code
 
+
 --------------------------------------------------------------------------------
--> USER ROUTE 
+-> USER MODEL 
 ---------------
+- we make fields such as _id, photo, name, email, role, gender & dob
+- we also make a virtual attribute of age schema.virtual("age").get(function(){ })
+- to include this virtual attribute we need to define types or an interface (IUser)
+mentioning the types of all attributes and of age as well
+- then we create the User model which is of the type IUser
+
+
+--------------------------------------------------------------------------------
+-> USER ROUTES 
+-----------------
 - we define the prefix for the user route in app.ts and pass in 
 "userRoutes" from routes/user.js 
 - we define the new user creation route in user.ts using express.Router()
@@ -42,6 +53,18 @@ so that all routes can hit this middleware using the next() function)
 errorMiddleware and handle errors gracefully, we have created this custom mw
 so that we do not have to write the error logic again and again, we can just 
 pass params as needed in this middleware.
+- we create the getAllUsers route firing which will fetch all the users from the 
+database but since this route should only be accessible to the Admin we add a 
+adminOnly middleware onto this route
+- the adminOnly mw checks whether the "id" received from query-param, it finds the 
+user with this id in the DB and checks their "role" - user or admin
+- similarly we have create the getUser route which fetches a single user using path
+parameter 'id' (dynamic ID) and deleteUser which deletes the user with the matching 
+id as the path-param, but the deleteUser route can only be accessed by the admin, so 
+we apply the appropriate adminOnly mw.
+- since getUser and deleteUser are essentially the same route we chain these together
+using app.router("/:id")
+
 
 ---------------------------------------------------------------------------------
 -> CUSTOM ERROR HANDLER 
@@ -54,9 +77,14 @@ the "new Error" thing we can do it by "new ErrorHandler"
 - so anytime we encounter an Error, we create an object of
 type ErrorHandler and send it to the errorMiddleware
 
-----------------------------------------------------------------------------------
--> 
-----------------------
 
+----------------------------------------------------------------------------------
+-> PRODUCT MODEL 
+----------------------
+- we make fields such as photo, name, price, stock & category
+- then we create the Product model and we do not need to define an
+interface and give this model a type since we are not using any virtual attr
+
+-------------------------------------------------------------------------------------
 
 
