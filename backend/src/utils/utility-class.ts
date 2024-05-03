@@ -1,6 +1,6 @@
 class ErrorHandler extends Error{
     constructor(public message: string, public statusCode: number){
-        super(message)
+        super(message)   // superclass mein jo message hai usme set kardo
         this.statusCode = statusCode
     }
 }

@@ -27,7 +27,7 @@ export const newUser =async (
                 message: `Welcome, ${user.name}`
             })
         } catch(error){
-            return next(new ErrorHandler("Mera custom error", 402))
+            return next(new ErrorHandler("Cannot Create User", 400))
         }
         
     }
