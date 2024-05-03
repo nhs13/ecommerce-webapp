@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../models/user.js";
 import { NewUserRequestBody } from "../types/types.js";
-import { Error } from "mongoose";
+import { Error } from "mongoose"; //mongoose
 import ErrorHandler from "../utils/utility-class.js";
 
 export const newUser =async (
