@@ -1,15 +1,14 @@
 import express from 'express'
 import { Request, Response, NextFunction } from 'express';
-
-
-
-// Importing routes
-import userRoutes from "./routes/user.js"
 import { connectDB } from './utils/features.js'
 import { errorMiddleware } from './middlewares/error.js';
 connectDB();
 const port = 4000
 const app = express()
+
+// Importing routes
+import userRoutes from "./routes/user.js"
+import productRoutes from "./routes/products.js"
 
 app.use(express.json())
 
@@ -19,6 +18,7 @@ app.get("/", (req,res)=>{
 
 // Using Routes
 app.use("/api/v1/user", userRoutes)
+app.use("/api/v1/product", productRoutes)
 
 
 // last middleware, so any route's next() would lead to this mw

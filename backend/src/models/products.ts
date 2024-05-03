@@ -1,31 +1,32 @@
 import mongoose from "mongoose";
 
-const schema = new mongoose.Schema({
+const schema = new mongoose.Schema(
+  {
     name: {
-        type: String, 
-        required: [true, "Please enter name"]
+      type: String,
+      required: [true, "Please enter Name"],
     },
-    Photo: {
-        type: String, 
-        required: [true, "Please add Photo"]
+    photo: {
+      type: String,
+      required: [true, "Please enter Photo"],
     },
-    Price: {
-        type: Number, 
-        required: [true, "Please enter the Price"]
+    price: {
+      type: Number,
+      required: [true, "Please enter Price"],
     },
-    Stock: {
-        type: Number, 
-        required: [true, "Please enter the Stock"]
+    stock: {
+      type: Number,
+      required: [true, "Please enter Stock"],
     },
-    Category: {
-        type: String, 
-        required: [true, "Please enter the Category"]
+    category: {
+      type: String,
+      required: [true, "Please enter Category"],
+      trim: true,
     },
-    
-    
-},{
+  },
+  {
     timestamps: true,
-})
+  }
+);
 
-// don't need to determine the type as we are not using any virtual attribute
-export const Product = mongoose.model("Product", schema)
+export const Product = mongoose.model("Product", schema);

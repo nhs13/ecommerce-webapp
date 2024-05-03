@@ -9,6 +9,14 @@ export interface NewUserRequestBody {
     dob: Date
 }
 
+
+export interface NewProductRequestBody {
+    name:string
+    category: string
+    price: number
+    stock: number
+}
+
 // type def for the wrapper
 // export type ControllerType = (
 //     req: Request, 
