@@ -27,5 +27,5 @@ const schema = new mongoose.Schema({
     timestamps: true,
 })
 
-
+// don't need to determine the type as we are not using any virtual attribute
 export const Product = mongoose.model("Product", schema)
