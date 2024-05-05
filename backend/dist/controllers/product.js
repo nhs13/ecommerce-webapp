@@ -151,7 +151,7 @@ res, next) => {
         if (category)
             product.category = category;
         await product.save();
-        await invalidateCache({ product: true });
+        await invalidateCache({ product: true, productId: String(product._id) });
         return res.status(200).json({
             success: true,
             message: "Product updated successfully"
@@ -172,7 +172,7 @@ res, next) => {
             console.log("Old photo deleted from static uploads folder");
         });
         await product.deleteOne();
-        await invalidateCache({ product: true });
+        await invalidateCache({ product: true, productId: String(product._id) });
         return res.status(200).json({
             success: true,
             message: "Product deleted successfully"
