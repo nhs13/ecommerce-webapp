@@ -22,6 +22,7 @@ export const myCache = new NodeCache();
 import userRoutes from "./routes/user.js"
 import productRoutes from "./routes/products.js"
 import orderRoutes from "./routes/orders.js"
+import paymentRoutes from "./routes/payment.js"
 
 app.use(express.json())
 
@@ -35,6 +36,7 @@ app.get("/", (req,res)=>{
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/product", productRoutes)
 app.use("/api/v1/order", orderRoutes)
+app.use("/api/v1/payment", paymentRoutes)
 
 
 // making the "uploads" folder serve static files
