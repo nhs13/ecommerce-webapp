@@ -9,12 +9,30 @@ export interface NewUserRequestBody {
     dob: Date
 }
 
-
 export interface NewProductRequestBody {
     name:string
     category: string
     price: number
     stock: number
+}
+
+export interface SearchRequestQuery{
+    search?: string
+    price?: string
+    category?: string
+    sort?: string
+    page?: string
+}
+
+export interface BaseQuery {
+    name?: {
+        $regex: string,
+        $options: string   
+    },
+    price?: {
+        $lte: number
+    },
+    category?: string,
 }
 
 // type def for the wrapper
