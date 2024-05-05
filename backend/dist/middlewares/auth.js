@@ -10,7 +10,7 @@ export const adminOnly = async (req, res, next) => {
         if (!user)
             return next(new ErrorHandler("User with this ID does not exist", 400));
         if (user.role !== "admin")
-            return next(new ErrorHandler("Unauthorized", 401));
+            return next(new ErrorHandler("Forbidden", 403));
         next();
     }
     catch (err) {

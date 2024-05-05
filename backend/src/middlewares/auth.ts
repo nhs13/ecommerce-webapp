@@ -13,7 +13,7 @@ export const adminOnly = async (
         
         const user = await User.findById(id)
         if(!user) return next(new ErrorHandler("User with this ID does not exist", 400))    
-        if(user.role !== "admin") return next(new ErrorHandler("Unauthorized", 401))
+        if(user.role !== "admin") return next(new ErrorHandler("Forbidden", 403))
         
         next()
     
