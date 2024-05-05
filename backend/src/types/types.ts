@@ -35,6 +35,13 @@ export interface BaseQuery {
     category?: string,
 }
 
+export interface InvalidateCacheProps {
+    product?: boolean,
+    order?: boolean,
+    admin?: boolean
+}
+
+
 // type def for the wrapper
 // export type ControllerType = (
 //     req: Request, 

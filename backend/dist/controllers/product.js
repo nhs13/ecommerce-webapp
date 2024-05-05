@@ -1,6 +1,99 @@
 import { Product } from "../models/products.js";
 import ErrorHandler from "../utils/utility-class.js";
 import { rm } from "fs";
+import { myCache } from "../app.js";
+import { invalidateCache } from "../utils/features.js";
+// Revalidate on New, Update, Delete Product or on New Order
+export const getLatestProducts = async (req, // additional type safety
+res, next) => {
+    try {
+        let products = [];
+        if (myCache.has("latest-products"))
+            // retrieve value from cache is exists for optimization
+            // value retrieved from the cache has unknown type at compile time
+            products = JSON.parse(myCache.get("latest-products"));
+        else {
+            products = await Product.find({}).sort({ createdAt: -1 }).limit(5);
+            myCache.set("latest-products", JSON.stringify(products));
+        }
+        return res.status(200).json({
+            success: true,
+            products
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return next(new ErrorHandler("Something went horribly wrong", 400));
+    }
+};
+// Revalidate on New, Update, Delete Product or on New Order
+export const getAllCategories = async (req, // additional type safety
+res, next) => {
+    try {
+        let categories = [];
+        if (myCache.has("categories"))
+            categories = JSON.parse(myCache.get("categories"));
+        else {
+            categories = await Product.distinct("category");
+            myCache.set("category", JSON.stringify(categories));
+        }
+        return res.status(200).json({
+            success: true,
+            categories
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return next(new ErrorHandler("Something went horribly wrong", 400));
+    }
+};
+// admin can access all the products
+// Revalidate on New, Update, Delete Product or on New Order
+export const getAdminProducts = async (req, // additional type safety
+res, next) => {
+    try {
+        let products = [];
+        if (myCache.has("all-products"))
+            products = JSON.parse(myCache.get("all-products"));
+        else {
+            products = await Product.find({}).sort({ createdAt: -1 });
+            myCache.set("all-products", JSON.stringify(products));
+        }
+        return res.status(200).json({
+            success: true,
+            products
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return next(new ErrorHandler("Something went horribly wrong", 400));
+    }
+};
+// Revalidate on New, Update, Delete Product or on New Order
+export const getSingleProduct = async (req, // additional type safety
+res, next) => {
+    try {
+        let product;
+        const id = req.params.id;
+        if (myCache.has(`product-${id}`)) {
+            product = JSON.parse(myCache.get(`product-${id}`));
+        }
+        else {
+            product = await Product.findById(id);
+            if (!product)
+                return next(new ErrorHandler("Product not found", 404));
+            myCache.set(`product-${id}`, JSON.stringify(product));
+        }
+        return res.status(200).json({
+            success: true,
+            product
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return next(new ErrorHandler("Something went horribly wrong", 400));
+    }
+};
 export const newProd = async (req, // additional type safety
 res, next) => {
     try {
@@ -21,68 +114,11 @@ res, next) => {
             category: category.toLowerCase(),
             photo: photo?.path
         });
+        // Invalidate the cache
+        await invalidateCache({ product: true });
         return res.status(201).json({
             success: true,
             message: "Product created"
-        });
-    }
-    catch (err) {
-        console.log(err);
-        return next(new ErrorHandler("Something went horribly wrong", 400));
-    }
-};
-export const getLatestProducts = async (req, // additional type safety
-res, next) => {
-    try {
-        const products = await Product.find({}).sort({ createdAt: -1 }).limit(5);
-        return res.status(200).json({
-            success: true,
-            products
-        });
-    }
-    catch (err) {
-        console.log(err);
-        return next(new ErrorHandler("Something went horribly wrong", 400));
-    }
-};
-export const getAllCategories = async (req, // additional type safety
-res, next) => {
-    try {
-        const categories = await Product.distinct("category");
-        return res.status(200).json({
-            success: true,
-            categories
-        });
-    }
-    catch (err) {
-        console.log(err);
-        return next(new ErrorHandler("Something went horribly wrong", 400));
-    }
-};
-// admin can access all the products
-export const getAdminProducts = async (req, // additional type safety
-res, next) => {
-    try {
-        const products = await Product.find({}).sort({ createdAt: -1 });
-        return res.status(200).json({
-            success: true,
-            products
-        });
-    }
-    catch (err) {
-        console.log(err);
-        return next(new ErrorHandler("Something went horribly wrong", 400));
-    }
-};
-export const getSingleProduct = async (req, // additional type safety
-res, next) => {
-    try {
-        const product = await Product.findById(req.params.id);
-        if (!product)
-            return next(new ErrorHandler("Product not found", 404));
-        return res.status(200).json({
-            success: true,
-            product
         });
     }
     catch (err) {
@@ -115,6 +151,7 @@ res, next) => {
         if (category)
             product.category = category;
         await product.save();
+        await invalidateCache({ product: true });
         return res.status(200).json({
             success: true,
             message: "Product updated successfully"
@@ -135,6 +172,7 @@ res, next) => {
             console.log("Old photo deleted from static uploads folder");
         });
         await product.deleteOne();
+        await invalidateCache({ product: true });
         return res.status(200).json({
             success: true,
             message: "Product deleted successfully"
