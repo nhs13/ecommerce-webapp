@@ -86,5 +86,60 @@ type ErrorHandler and send it to the errorMiddleware
 interface and give this model a type since we are not using any virtual attr
 
 -------------------------------------------------------------------------------------
+-> MULTER, DOTENV, MORGAN & UUID
+----------------------------------
+- we have used "multer" to store images on the server (our pc)
+- we define a unique id using "uuid" and we find the extension name of the image we upload 
+- we combine the id with the extName to give each file a unique name
+- we define a func singleUpload which initializes a multer obj which takes storage option
+- we set the filename as `${id}.${extName}` and the destination as "uploads"
+- we use this singleUpload func as a middleware 
+- this middleware stores the images from "req.file" in the uploads folder
+- "morgan" package is used to display all the info about the api call on the console
+- we i the package "dotenv" and config the path in app.ts to secure our env vars
 
+-------------------------------------------------------------------------------------
+-> NODE CACHE OPTIMIZATION
+-----------------------------
+- in app.ts import NodeCache, declare an instance myCache
+- we can use this myCache in controller functions
+- we can cache first time reqs, and then again someone hits that api we can immediately
+fetch the data from the cache, it would be very optimized and fast 
+- we make a utility func invalidateCache which would clear the cache, if there
+is any changes in the db and we need to show updated data when apis are hit
+e.g. when a new product is created (or) when an order is deleted &c
+- cache takes only strings inside so we need to stringify the arrays we put & when we
+receive them back we need to parse them to retrieve what was originally there
+
+--------------------------------------------------------------------------------------
+-> PRODUCT ROUTES & CONTROLLERS
+----------------------------------
+-
+
+
+--------------------------------------------------------------------------------------
+-> ORDER MODEL
+----------------
+-
+
+
+---------------------------------------------------------------------------------------
+-> ORDER ROUTES & CONTROLLERS
+--------------------------------
+-
+
+
+----------------------------------------------------------------------------------------
+-> COUPON MODEL
+------------------
+- 
+
+
+-----------------------------------------------------------------------------------------
+-> COUPON ROUTES & CONTROLLERS
+---------------------------------
+- 
+
+
+------------------------------------------------------------------------------------------
 
