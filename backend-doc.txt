@@ -114,7 +114,39 @@ receive them back we need to parse them to retrieve what was originally there
 --------------------------------------------------------------------------------------
 -> PRODUCT ROUTES & CONTROLLERS
 ----------------------------------
--
+- we create 
+/new, 
+/latest, 
+/all, 
+/category, 
+/admin-products,
+/:id - single product route, update product route, delete product route
+
+- route: /new, controller: newProd 
+this is a controller function (mws: singleUpload & adminOnly) which is used 
+on the /new route, using this we create a new product, it takes {name,category, price, stock}
+from req.body & photo from req.file, appropriate error handling for missing fields is 
+incorporated if any field is missing, we delete the photo from the "uploads" folder using 
+fs module we then create this document in the Product table and invalidateCache & return the 
+json file as "Product Created"
+
+- route: /latest, controller: getLatestProducts
+this controller func uses createdAt: -1 & limit(5) to fetch the latest 5 products from the db
+this func used myCache to cache the results and optimize itself
+
+- route: /all, controller: getAllProducts
+we take {search, sort, category, price} from req.query, page by typecasting req.query.page 
+into Number, similarly typecasting product_per_page from the env file to Number
+we need to take query params only if they exist so we create a baseQuery obj which will be 
+filled if search exists or if price or category exist, then we get the filtered products
+from the db using baseQuery, we have applied sort on this result if it exists, we have 
+applied limit and skip as well then we find the totalPages which is allFilteredProducts.length/limit
+we then send the products array obtained as well as the totalPages as a res
+
+- route: /category, controller: getAllCategories
+
+
+
 
 
 --------------------------------------------------------------------------------------
@@ -142,4 +174,9 @@ receive them back we need to parse them to retrieve what was originally there
 
 
 ------------------------------------------------------------------------------------------
+-> DASHBOARD STATISTICS API 
+-----------------------------
+- 
 
+
+-------------------------------------------------------------------------------------------

@@ -71,6 +71,11 @@ $color3: rgb(0, 104, 136);
 .header {
   @include flex(row, flex-end, stretch, 1.2rem);
   padding: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  transition: 0.5s all ease;
+  // background-color: rgba(8, 110, 13, 0.418);
   a {
     color: $color2;
     letter-spacing: 2px;
@@ -79,6 +84,10 @@ $color3: rgb(0, 104, 136);
     &:hover {
       color: $color3;
     }
+  }
+  &.active {
+    // background-color: rgba(191, 195, 245, 0.137);
+    color: black;
   }
 
   button {
