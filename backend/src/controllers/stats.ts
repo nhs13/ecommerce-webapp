@@ -138,6 +138,8 @@ export const getDashboardStats = async(
 
             }
 
+
+            // data generation for the charts
             const orderMonthCounts = new Array(6).fill(0)
             const orderMonthlyRevenue = new Array(6).fill(0)
 
@@ -156,7 +158,7 @@ export const getDashboardStats = async(
             stats = {
                 changePercentages,
                 countValues,
-                chart:{
+                charts:{
                     orderMonthCounts,
                     orderMonthlyRevenue
                 }

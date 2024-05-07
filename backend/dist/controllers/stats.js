@@ -92,6 +92,7 @@ export const getDashboardStats = async (req, res, next) => {
                 order: allOrders.length,
                 revenue: revenueCount
             };
+            // data generation for the charts
             const orderMonthCounts = new Array(6).fill(0);
             const orderMonthlyRevenue = new Array(6).fill(0);
             lastSixMonthOrders.forEach((order) => {
@@ -105,7 +106,7 @@ export const getDashboardStats = async (req, res, next) => {
             stats = {
                 changePercentages,
                 countValues,
-                chart: {
+                charts: {
                     orderMonthCounts,
                     orderMonthlyRevenue
                 }
