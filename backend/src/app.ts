@@ -23,6 +23,7 @@ import userRoutes from "./routes/user.js"
 import productRoutes from "./routes/products.js"
 import orderRoutes from "./routes/orders.js"
 import paymentRoutes from "./routes/payment.js"
+import dashboardRoutes from "./routes/stats.js"
 
 app.use(express.json())
 
@@ -37,6 +38,7 @@ app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/product", productRoutes)
 app.use("/api/v1/order", orderRoutes)
 app.use("/api/v1/payment", paymentRoutes)
+app.use("/api/v1/dashboard", dashboardRoutes)
 
 
 // making the "uploads" folder serve static files

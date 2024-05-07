@@ -1,0 +1,7 @@
+i : Foundations (compti a+)
+ii : Security+
+iii : Networking (ccna)
+iv : Linux
+v : Python, Go
+vi : Hacking
+vii : compti pentest+
