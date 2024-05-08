@@ -4,7 +4,8 @@ import { myCache } from "../app.js";
 import { Product } from "../models/products.js";
 import { Order } from "../models/order.js";
 import { User } from "../models/user.js";
-import { calcPercentage } from "../utils/features.js";
+import { calcPercentage, getCategoryPercentage } from "../utils/features.js";
+import { NOTFOUND } from "dns";
 
 
 export const getDashboardStats = async(
@@ -77,6 +78,9 @@ export const getDashboardStats = async(
                     $lte: today,
                 }
             })
+
+
+            const latestTransactionsPromise = Order.find({}).select(["orderItems","discount","total","status"]).limit(4)
             
 
             // concurrent exec not one after the other - more efficient
@@ -89,6 +93,9 @@ export const getDashboardStats = async(
                 usersCount,
                 allOrders,
                 lastSixMonthOrders,
+                categories,
+                femaleUsersCount,
+                latestTransactions,
             ] = await Promise.all([
                 thisMonthProductsPromise, lastMonthProductsPromise,
                 thisMonthUsersPromise, lastMonthUsersPromise,
@@ -97,6 +104,9 @@ export const getDashboardStats = async(
                 User.countDocuments(),
                 Order.find({}).select("total"),
                 lastSixMonthOrdersPromise,
+                Product.distinct("category"),
+                User.countDocuments({gender: "female"}),
+                latestTransactionsPromise,
             ])
 
             // calculating monthly revenue
@@ -155,7 +165,32 @@ export const getDashboardStats = async(
                 }
             )
 
+
+            // to fill the inventory display
+            const categoryPercentage: Record<string, number>[] = await getCategoryPercentage(categories, productsCount)
+            
+
+
+            // gender ratio
+            const userRatio = {
+                male: usersCount - femaleUsersCount,
+                female: femaleUsersCount,
+            }
+
+            // modifying the latestTransactions to get tailored data suited to our needs
+            const modifiedLatestTransactions = latestTransactions.map(t=>({
+                _id : t._id,
+                discount : t.discount,
+                amount: t.total,
+                quantity: t.orderItems.length,
+                status: t.status,
+            }))
+
             stats = {
+                userRatio,
+                latestTransactions,
+                modifiedLatestTransactions,
+                categoryPercentage,
                 changePercentages,
                 countValues,
                 charts:{
@@ -163,6 +198,8 @@ export const getDashboardStats = async(
                     orderMonthlyRevenue
                 }
             }
+
+            myCache.set("admin-stats", JSON.stringify(stats))
         } 
 
         return res.status(200).json({
@@ -182,7 +219,94 @@ export const getPieCharts = async(
     next: NextFunction,
 ) => {
     try{
+        let charts;
+        if(myCache.has("admin-pie-charts")) charts = JSON.parse(myCache.get("admin-pie-charts") as string)
+        else {
+            const [
+                ordersInProcessing,
+                shippedOrders,
+                deliveredOrders,
+                categories,
+                productsCount,
+                outOfStock,
+                allOrders,
+                allUsers,
+                adminUsers,
+                customerUsers,
+            ] = await Promise.all([
+                Order.countDocuments({status: "Processing"}),
+                Order.countDocuments({status: "Shipped"}),
+                Order.countDocuments({status: "Delivered"}),
+                Product.distinct("category"),
+                Product.countDocuments(),
+                Product.countDocuments({stock:0}),
+                Order.find({}).select(["total", "discount", "subtotal", "tax", "shippingCharges"]),
+                User.find({}),
+                User.countDocuments({role:"admin"}),
+                User.countDocuments({role:"user"}),
+            ])
 
+            // status of the orders 
+            const orderFulfillment = {
+                processing: ordersInProcessing,
+                shipped: shippedOrders,
+                delivered: deliveredOrders,
+            }
+
+            // ratio of categories of products
+            const productCategory = await getCategoryPercentage(categories, productsCount)
+
+            // stock availability 
+            const stockAvailability = {
+                inStock: productsCount - outOfStock,
+                outOfStock: outOfStock,
+            }
+
+            const grossIncome = allOrders.reduce((sum, order)=> sum + (order.total || 0),0)
+            const discount = allOrders.reduce((sum, order)=> sum + (order.discount || 0),0)
+            const productionCost = allOrders.reduce((sum, order)=> sum + (order.shippingCharges || 0),0)
+            const burnt = allOrders.reduce((sum, order)=> sum + (order.tax || 0),0)
+            const marketingCost = Math.round(grossIncome * (30/100))
+            const netMargin = grossIncome - discount - productionCost - burnt - marketingCost
+
+            // revenue distribution pie chart
+            const revenueDistribution = {
+                netMargin,
+                discount,
+                productionCost,
+                burnt,
+                marketingCost,
+            }
+
+            // age group of users for pie chart
+            const usersAgeGroup = {
+                teen: allUsers.filter(i=>i.age < 20).length, 
+                adult: allUsers.filter(i=>i.age < 40 && i.age >= 20).length,
+                old: allUsers.filter(i=>i.age >= 40).length,
+            }
+
+            // admins and customers pie chart
+            const adminCustomer = {
+                admins: adminUsers,
+                customers: customerUsers
+            }
+
+            charts = {
+                stockAvailability,
+                productCategory,
+                orderFulfillment,
+                revenueDistribution,
+                adminCustomer,
+                usersAgeGroup,
+            }
+
+            myCache.set("admin-pie-charts", JSON.stringify(charts))
+        }
+
+        return res.status(200).json({
+            success: true,
+            charts,
+        })
     }catch(err){
         return next(new ErrorHandler("Something went wrong", 400))
     }
@@ -196,7 +320,7 @@ export const getBarCharts = async(
     next: NextFunction,
 ) => {
     try{
-
+        
     }catch(err){
         return next(new ErrorHandler("Something went wrong", 400))
     }

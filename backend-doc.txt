@@ -174,8 +174,8 @@ we then send the products array obtained as well as the totalPages as a res
 
 
 ------------------------------------------------------------------------------------------
--> DASHBOARD STATISTICS API 
------------------------------
+-> DASHBOARD STATISTICS ROUTE & CONTROLLERS 
+---------------------------------------------
 - 
 
 
