@@ -5,6 +5,7 @@ import { errorMiddleware } from './middlewares/error.js';
 import NodeCache from 'node-cache';
 import { config } from 'dotenv';
 import morgan from 'morgan'
+import cors from 'cors'
 
 config({
     path: "./.env"
@@ -28,6 +29,8 @@ import dashboardRoutes from "./routes/stats.js"
 app.use(express.json())
 
 app.use(morgan("dev"))
+
+app.use(cors())
 
 app.get("/", (req,res)=>{
     res.send("API Working with /api/v1")
