@@ -4,7 +4,7 @@ import { myCache } from "../app.js";
 import { Product } from "../models/products.js";
 import { Order } from "../models/order.js";
 import { User } from "../models/user.js";
-import { calcPercentage, getCategoryPercentage } from "../utils/features.js";
+import { calcPercentage, getCategoryPercentage, getChartData } from "../utils/features.js";
 import { NOTFOUND } from "dns";
 
 
@@ -156,7 +156,7 @@ export const getDashboardStats = async(
             lastSixMonthOrders.forEach(
                 (order)=>{
                     const creationDate = order.createdAt
-                    const monthDifference = today.getMonth() - creationDate.getMonth()
+                    const monthDifference = (12 + today.getMonth() - creationDate.getMonth())%12
                     
                     if(monthDifference<6){
                         orderMonthCounts[6-monthDifference-1] += 1
@@ -320,6 +320,103 @@ export const getBarCharts = async(
     next: NextFunction,
 ) => {
     try{
+        let charts;
+        const key = "admin-bar-charts"
+
+        if(myCache.has(key)) charts = JSON.parse(myCache.get(key) as string)
+        else{
+            const today = new Date();
+
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        
+            const twelveMonthsAgo = new Date();
+            twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+        
+
+            // promises to resolve
+            const sixMonthProductPromise = Product.find({
+              createdAt: {
+                $gte: sixMonthsAgo,
+                $lte: today,
+              },
+            }).select("createdAt");
+        
+            const sixMonthUsersPromise = User.find({
+              createdAt: {
+                $gte: sixMonthsAgo,
+                $lte: today,
+              },
+            }).select("createdAt");
+        
+            const twelveMonthOrdersPromise = Order.find({
+              createdAt: {
+                $gte: twelveMonthsAgo,
+                $lte: today,
+              },
+            }).select("createdAt");
+        
+
+
+            // resolving all promises
+            const [products, users, orders] = await Promise.all([
+              sixMonthProductPromise,
+              sixMonthUsersPromise,
+              twelveMonthOrdersPromise,
+            ]);
+
+            
+            // data gen for the charts
+            const productsCounts = new Array(6).fill(0)
+            products.forEach(
+                (i)=>{
+                    const creationDate = i.createdAt
+                    const monthDifference = (12 + today.getMonth() - creationDate.getMonth())%12
+                    
+                    if(monthDifference<6){
+                        productsCounts[6-monthDifference-1] += 1
+                    }
+                }
+            )
+
+            const usersCounts = new Array(6).fill(0)
+            users.forEach(
+                (i)=>{
+                    const creationDate = i.createdAt
+                    const monthDifference = (12 + today.getMonth() - creationDate.getMonth())%12
+                    
+                    if(monthDifference<6){
+                        usersCounts[6-monthDifference-1] += 1
+                    }
+                }
+            )
+
+            const ordersCounts = new Array(12).fill(0)
+            orders.forEach(
+                (i)=>{
+                    const creationDate = i.createdAt
+                    const monthDifference = (12 + today.getMonth() - creationDate.getMonth())%12
+                    
+                    if(monthDifference<12){
+                        ordersCounts[12-monthDifference-1] += 1
+                    }
+                }
+            )
+
+        
+            charts = {
+                users: usersCounts,
+                products: productsCounts,
+                orders: ordersCounts,
+            }
+            
+            myCache.set(key, JSON.stringify(charts))
+        }
+
+        return res.status(200).json({
+            success: true,
+            charts,
+        })
         
     }catch(err){
         return next(new ErrorHandler("Something went wrong", 400))
@@ -334,7 +431,57 @@ export const getLineCharts = async(
     next: NextFunction,
 ) => {
     try{
-
+        // let charts;
+        // const key = "admin-line-charts";
+      
+        // if (myCache.has(key)) charts = JSON.parse(myCache.get(key) as string);
+        // else {
+        //   const today = new Date();
+      
+        //   const twelveMonthsAgo = new Date();
+        //   twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+      
+        //   const baseQuery = {
+        //     createdAt: {
+        //       $gte: twelveMonthsAgo,
+        //       $lte: today,
+        //     },
+        //   };
+      
+        //   const [products, users, orders] = await Promise.all([
+        //     Product.find(baseQuery).select("createdAt"),
+        //     User.find(baseQuery).select("createdAt"),
+        //     Order.find(baseQuery).select(["createdAt", "discount", "total"]),
+        //   ]);
+      
+        //   const productCounts = getChartData({ length: 12, today, docArr: products });
+        //   const usersCounts = getChartData({ length: 12, today, docArr: users });
+        //   const discount = getChartData({
+        //     length: 12,
+        //     today,
+        //     docArr: orders,
+        //     property: "discount",
+        //   });
+        //   const revenue = getChartData({
+        //     length: 12,
+        //     today,
+        //     docArr: orders,
+        //     property: "total",
+        //   });
+      
+        //   charts = {
+        //     users: usersCounts,
+        //     products: productCounts,
+        //     discount,
+        //     revenue,
+        //   };
+      
+        //   myCache.set(key, JSON.stringify(charts));
+        // }
+      
+        return res.status(200).json({
+          success: true,
+        });
     }catch(err){
         return next(new ErrorHandler("Something went wrong", 400))
     }
