@@ -1,8 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 // import { query } from "firebase/database";
 import { server } from "../store";
-import { MessageResponse } from "../../types/api-types";
+import { MessageResponse, UserResponse } from "../../types/api-types";
 import { User } from "../../types/types";
+import axios from "axios";
 
 
 
@@ -24,5 +25,12 @@ export const userAPI = createApi({
         })
     })
 })
+
+
+export const getUser = async(id: string) => {
+    const res = await axios.get(`${import.meta.env.VITE_SERVER}/api/v1/user/${id}`)
+    const data: UserResponse = res.data
+    return data
+}
 
 export const {useLoginMutation} = userAPI

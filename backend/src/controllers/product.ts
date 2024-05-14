@@ -156,30 +156,32 @@ export const updateProduct = async(
     res: Response, 
     next: NextFunction) => {
     try{
-        const {id} = req.params
-        const {name, category, price, stock} = req.body
-        const photo = req.file
-
-        const product = await Product.findById(id)
-        if (!product) return next(new ErrorHandler("Product not found", 404))
-                
-        if(photo) {
-            rm(product.photo, ()=>{
-                console.log("Old photo deleted")
-            })
-            product.photo = photo.path
-            return next(new ErrorHandler("Please enter all fields", 400))
+        const { id } = req.params;
+        const { name, price, stock, category } = req.body;
+        const photo = req.file;
+        const product = await Product.findById(id);
+      
+        if (!product) return next(new ErrorHandler("Product Not Found", 404));
+      
+        if (photo) {
+          rm(product.photo!, () => {
+            console.log("Old Photo Deleted");
+          });
+          product.photo = photo.path;
         }
-
-        if(name) product.name = name
-        if(price) product.price = price
-        if(stock) product.stock = stock
-        if(category) product.category = category
-
-        await product.save()
-
-        await invalidateCache({product: true, productId: String(product._id)})
-
+      
+        if (name) product.name = name;
+        if (price) product.price = price;
+        if (stock) product.stock = stock;
+        if (category) product.category = category;
+      
+        await product.save();
+      
+        invalidateCache({
+          product: true,
+          productId: String(product._id),
+          admin: true,
+        });
         return res.status(200).json({
             success: true,
             message: "Product updated successfully"

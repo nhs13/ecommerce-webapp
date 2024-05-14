@@ -130,17 +130,16 @@ export const updateProduct = async (req, // additional type safety
 res, next) => {
     try {
         const { id } = req.params;
-        const { name, category, price, stock } = req.body;
+        const { name, price, stock, category } = req.body;
         const photo = req.file;
         const product = await Product.findById(id);
         if (!product)
-            return next(new ErrorHandler("Product not found", 404));
+            return next(new ErrorHandler("Product Not Found", 404));
         if (photo) {
             rm(product.photo, () => {
-                console.log("Old photo deleted");
+                console.log("Old Photo Deleted");
             });
             product.photo = photo.path;
-            return next(new ErrorHandler("Please enter all fields", 400));
         }
         if (name)
             product.name = name;
@@ -151,7 +150,11 @@ res, next) => {
         if (category)
             product.category = category;
         await product.save();
-        await invalidateCache({ product: true, productId: String(product._id) });
+        invalidateCache({
+            product: true,
+            productId: String(product._id),
+            admin: true,
+        });
         return res.status(200).json({
             success: true,
             message: "Product updated successfully"
