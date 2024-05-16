@@ -1,47 +1,55 @@
-import { Link } from "react-router-dom"
-import ProductCard from "../components/product-card"
-import {Toaster, toast} from 'sonner'
-import { useEffect } from "react"
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { Skeleton } from "../components/loader";
+import ProductCard from "../components/product-card";
+import { useLatestProductsQuery } from "../redux/api/productAPI";
+import { addToCart } from "../redux/reducer/cartReducer";
+import { CartItem } from "../types/types";
 
 const Home = () => {
+  const { data, isLoading, isError } = useLatestProductsQuery("");
 
-  const addToCartHandler = () => {
-    
-  }
+  const dispatch = useDispatch();
 
-  const msgs = true
-  useEffect(()=>{
-    toast.warning('you have unread messages')
-  },[msgs])
+  const addToCartHandler = (cartItem: CartItem) => {
+    if (cartItem.stock < 1) return toast.error("Out of Stock");
+    dispatch(addToCart(cartItem));
+    toast.success("Added to cart");
+  };
+
+  if (isError) toast.error("Cannot Fetch the Products");
 
   return (
-    <>
     <div className="home">
-      <section>
-
-      </section>
+      <section></section>
 
       <h1>
         Latest Products
-        <Link to={"/search"} className="findmore">More</Link>
+        <Link to="/search" className="findmore">
+          More
+        </Link>
       </h1>
 
       <main>
-        {/* Products go here */}
-        <ProductCard 
-          productsId="random" 
-          name="alienware"
-          price={155000}
-          stock={500}
-          photo="https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/page/franchise/alienware-laptops/dell-alienware-lt-franchise-cd-1920x1440-x16-mod03-collapsed-1.png?fmt=png-alpha&wid=1920&hei=1440"
-          handler={addToCartHandler}
-        />
+        {isLoading ? (
+          <Skeleton width="80vw" />
+        ) : (
+          data?.products.map((i) => (
+            <ProductCard
+              key={i._id}
+              productId={i._id}
+              name={i.name}
+              price={i.price}
+              stock={i.stock}
+              handler={addToCartHandler}
+              photo={i.photo}
+            />
+          ))
+        )}
       </main>
     </div>
-      <Toaster richColors expand={true} closeButton/>
-    </>
-    
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
